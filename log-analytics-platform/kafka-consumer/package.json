@@ -1,0 +1,14 @@
+{
+  "name": "kafka-consumer",
+  "version": "1.0.0",
+  "description": "Kafka consumer for log processing",
+  "main": "consumer.js",
+  "scripts": {
+    "start": "node consumer.js"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4",
+    "pg": "^8.10.0",
+    "winston": "^3.8.2"
+  }
+}

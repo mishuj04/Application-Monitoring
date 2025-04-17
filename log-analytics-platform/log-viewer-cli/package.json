@@ -1,0 +1,13 @@
+{
+    "name": "log-viewer-cli",
+    "version": "1.0.0",
+    "description": "CLI tool for viewing logs from PostgreSQL database",
+    "main": "log-viewer.js",
+    "scripts": {
+      "start": "node log-viewer.js"
+    },
+    "dependencies": {
+      "pg": "^8.10.0",
+      "winston": "^3.8.2"
+    }
+  }

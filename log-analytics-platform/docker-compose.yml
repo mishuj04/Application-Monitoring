@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # API Server
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Load Generator
+  load-generator:
+    build: ./load-generator
+    depends_on:
+      - api
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Kafka Producer
+  kafka-producer:
+    build: ./kafka-producer
+    depends_on:
+      - kafka
+      - api
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Kafka Consumer
+  kafka-consumer:
+    build: ./kafka-consumer
+    depends_on:
+      - kafka
+      - postgres
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: logs
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - postgres
+      - prometheus
+    networks:
+      - log-analytics-network
+    restart: unless-stopped
+
+  # Log Viewer CLI
+  log-viewer:
+    build: ./log-viewer-cli
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=password
+      - DB_NAME=logs
+    stdin_open: true
+    tty: true
+    networks:
+      - log-analytics-network
+
+networks:
+  log-analytics-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  grafana-data:

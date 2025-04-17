@@ -1,0 +1,14 @@
+{
+    "name": "kafka-producer",
+    "version": "1.0.0",
+    "description": "Kafka producer for log shipping",
+    "main": "producer.js",
+    "scripts": {
+      "start": "node producer.js"
+    },
+    "dependencies": {
+      "kafkajs": "^2.2.4",
+      "winston": "^3.8.2",
+      "axios": "^1.3.6"
+    }
+  }

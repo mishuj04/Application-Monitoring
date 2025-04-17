@@ -1,0 +1,25 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    url: postgres:5432
+    user: admin
+    password: admin
+    database: logs
+    isDefault: true
+    editable: true   # ✅ Add this line
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 100
+      maxIdleConns: 100
+      connMaxLifetime: 14400
+      postgresVersion: 1200
+      timescaledb: false
+
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus:9090
+    access: proxy
+    isDefault: false
+    editable: true
