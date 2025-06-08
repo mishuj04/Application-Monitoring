@@ -1,0 +1,1 @@
+The Log Analytics Platform is an end-to-end monitoring system that collects, processes, stores, and visualizes application logs in real time. It uses Kafka for real-time log ingestion, Prometheus for metrics, and Grafana for powerful visualizations. This system helps developers monitor system health, track API performance, and detect issues early.
