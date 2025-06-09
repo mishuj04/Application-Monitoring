@@ -1,0 +1,25 @@
+WEEK1
+
+docker-compose up -d api load-generator zookeeper kafka kafka-producer
+
+docker-compose logs -f api kafka-producer
+
+WEEK2
+
+docker-compose up -d postgres kafka-consumer
+
+docker-compose logs -f kafka-consumer
+
+docker-compose exec postgres psql -U admin -d logs -c "\dt"
+
+docker-compose up -d log-viewer
+
+docker-compose exec log-viewer sh
+
+node log-viewer.js
+
+WEEK3
+
+docker-compose up -d prometheus grafana
+
+http://localhost:3001/
